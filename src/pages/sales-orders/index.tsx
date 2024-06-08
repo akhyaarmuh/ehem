@@ -52,8 +52,10 @@ const SalesOrders = () => {
         filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }],
       });
       const server = await device.gatt.connect();
-      const service = server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-      const printerCharacteristic = service.getCharacteristic(
+      const service = await server.getPrimaryService(
+        '000018f0-0000-1000-8000-00805f9b34fb'
+      );
+      const printerCharacteristic = await service.getCharacteristic(
         '00002af1-0000-1000-8000-00805f9b34fb'
       );
 
