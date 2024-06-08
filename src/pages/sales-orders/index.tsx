@@ -7,7 +7,7 @@ import CartTable from './cart-table';
 import PriceDetail from './price-detail';
 import { Button } from '../../components';
 import FormAddProduct from './form-add-product';
-import { printNota } from '../../utilities/printer';
+// import { printNota } from '../../utilities/printer';
 import { mySwal } from '../../utilities';
 
 const SalesOrders = () => {
@@ -18,6 +18,7 @@ const SalesOrders = () => {
       const device = await _navigator.bluetooth.requestDevice({
         filters: [{ services: ['battery_service'] }],
       });
+      console.log(device);
     } catch (error: any) {
       mySwal.fire(error.message);
     }
