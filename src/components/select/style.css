@@ -1,0 +1,35 @@
+div .react-select__control {
+  /* @apply py-[5px] border-base-200 bg-transparent; */
+  @apply input input-bordered pr-0;
+}
+/* div .react-select__control:hover {
+  @apply border-base-200;
+} */
+
+div .react-select__value-container {
+  @apply px-0;
+}
+
+div .react-select__control.react-select__control--is-focused {
+  @apply shadow-none border-primary;
+}
+
+div .react-select__placeholder,
+div .react-select__single-value {
+  @apply text-base-content;
+}
+
+div .react-select__menu {
+  @apply bg-base-100;
+}
+
+div .react-select__option {
+  @apply text-primary;
+}
+div .react-select__option:active {
+  @apply bg-primary;
+}
+div .react-select__option--is-focused,
+div .react-select__option--is-selected {
+  @apply bg-primary text-neutral-content;
+}

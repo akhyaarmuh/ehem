@@ -1,0 +1,4 @@
+header.backdrop {
+  backdrop-filter: blur(5px);
+  @apply shadow-[inset_0_-1px_0_0] shadow-base-200;
+}
