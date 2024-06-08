@@ -52,14 +52,13 @@ const SalesOrders = () => {
         acceptAllDevices: true,
         optionalServices: ['battery_service'],
       });
-      await device.open();
-      if (device.configuration === null) await device.selectConfiguration(1);
-      await device.claimInterface(0);
-      const endpoint = device.configuration.interfaces[0].alternates[0].endpoints.find(
-        (e: any) => e.direction === 'out'
+      const server = await device.gatt.connect();
+      const service = await server.getPrimaryService('printer_service');
+      const printerCharacteristic = await service.getCharacteristic(
+        'printer_characteristic'
       );
 
-      await device.transferOut(endpoint.endpointNumber, data);
+      await printerCharacteristic.writeValue(data);
     } catch (error: any) {
       mySwal.fire(error.message);
     }
