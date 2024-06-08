@@ -49,7 +49,7 @@ const SalesOrders = () => {
     const _navigator: any = navigator;
     try {
       const device = await _navigator.bluetooth.requestDevice({
-        filter: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }],
+        filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }],
       });
       const server = await device.gatt.connect();
       const service = server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
