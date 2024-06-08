@@ -23,7 +23,7 @@ export const getPrinter = async (): Promise<{ printer: any; endpoint: any }> => 
       filters: [],
     });
     await device.open();
-    if (printer.configuration === null) await printer.selectConfiguration(1);
+    if (device.configuration === null) await device.selectConfiguration(1);
     await device.claimInterface(0);
     const endpoint = device.configuration.interfaces[0].alternates[0].endpoints.find(
       (e: any) => e.direction === 'out'
