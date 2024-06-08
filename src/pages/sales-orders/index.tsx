@@ -15,7 +15,8 @@ const SalesOrders = () => {
     const _navigator: any = navigator;
     try {
       await _navigator.bluetooth.requestDevice({
-        filters: [],
+        acceptAllDevices: true,
+        optionalServices: ['battery_service'],
       });
     } catch (error: any) {
       mySwal.fire(error.message);
