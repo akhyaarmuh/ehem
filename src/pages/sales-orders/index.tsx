@@ -14,11 +14,9 @@ const SalesOrders = () => {
   const getPrinter = async () => {
     const _navigator: any = navigator;
     try {
-      console.log(_navigator.bluetooth);
-      const device = await _navigator.bluetooth.requestDevice({
-        filters: [{ services: ['battery_service'] }],
+      await _navigator.bluetooth.requestDevice({
+        filters: [],
       });
-      console.log(device);
     } catch (error: any) {
       mySwal.fire(error.message);
     }
