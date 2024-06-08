@@ -49,12 +49,13 @@ const SalesOrders = () => {
     const _navigator: any = navigator;
     try {
       const device = await _navigator.bluetooth.requestDevice({
-        acceptAllDevices: true,
-        optionalServices: ['battery_service'],
+        filter: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }],
       });
       const server = await device.gatt.connect();
-      const service = await server.getPrimaryService();
-      const printerCharacteristic = await service.getCharacteristic();
+      const service = server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+      const printerCharacteristic = service.getCharacteristic(
+        '00002af1-0000-1000-8000-00805f9b34fb'
+      );
 
       await printerCharacteristic.writeValue(data);
     } catch (error: any) {
