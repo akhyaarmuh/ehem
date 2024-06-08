@@ -1,5 +1,5 @@
 import { myFetch } from '.';
-import { IShop, ICreateShop, IActivateShop } from '../types/IShop';
+import { IShop, ICreateShop, IActivateShop, IUpdateShop } from '../types/IShop';
 import { IResponseGetAll } from '../types/IResponse';
 
 /**
