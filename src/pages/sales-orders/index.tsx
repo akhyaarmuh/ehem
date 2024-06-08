@@ -53,10 +53,8 @@ const SalesOrders = () => {
         optionalServices: ['battery_service'],
       });
       const server = await device.gatt.connect();
-      const service = await server.getPrimaryService('printer_service');
-      const printerCharacteristic = await service.getCharacteristic(
-        'printer_characteristic'
-      );
+      const service = await server.getPrimaryService();
+      const printerCharacteristic = await service.getCharacteristic();
 
       await printerCharacteristic.writeValue(data);
     } catch (error: any) {
