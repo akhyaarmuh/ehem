@@ -1,7 +1,7 @@
 import { MdOutlinePayment } from 'react-icons/md';
 import { AiOutlinePoweroff } from 'react-icons/ai';
 
-import { Encoder, BTPrinter } from '../../utilities/escpos';
+import { BTPrinter } from '../../utilities/escpos';
 import Header from './header';
 import Options from './options';
 import CartTable from './cart-table';
