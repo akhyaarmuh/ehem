@@ -10,16 +10,11 @@ import { Button } from '../../components';
 import FormAddProduct from './form-add-product';
 // import { printNota } from '../../utilities/printer';
 import { mySwal } from '../../utilities';
-import { useState } from 'react';
 
 const SalesOrders = () => {
-  const [device, setDevice] = useState<BluetoothDevice | null>(null);
-
   const getPrinter = async () => {
     try {
-      // const printer = new BTPrinter();
-      const printer = await BTPrinter.create(device);
-      if (!device) setDevice(printer.device);
+      const printer = await BTPrinter.create();
 
       printer
         .size('large')

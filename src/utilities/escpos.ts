@@ -9,14 +9,16 @@ export class BTPrinter {
   private characteristic: BluetoothRemoteGATTCharacteristic | undefined = undefined;
   private dataBuffer: Uint8Array[] = [];
 
-  static async create(device: BluetoothDevice | null): Promise<BTPrinter> {
+  static async create(): Promise<BTPrinter> {
     const instance = new BTPrinter();
-    await instance.initialize(device);
+    await instance.initialize();
     return instance;
   }
 
-  private async initialize(device: BluetoothDevice | null) {
+  private async initialize() {
     try {
+      const [device] = await navigator.bluetooth.getDevices();
+
       if (device) this.device = device;
       else
         this.device = await navigator.bluetooth.requestDevice({
