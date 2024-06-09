@@ -11,44 +11,11 @@ import FormAddProduct from './form-add-product';
 // import { printNota } from '../../utilities/printer';
 import { mySwal } from '../../utilities';
 
-// const data = new Encoder()
-//   .size('large')
-//   .align('center')
-//   .text('NW Store')
-//   .size('normal')
-//   .text('Amuntai')
-//   .text('Desa Tigarun, RT.003 No. 003')
-//   .text('082354566666')
-//   .line('-')
-//   .align('right')
-//   .text('08 Juni 2024')
-//   .text('15:04:49')
-//   .align('left')
-//   .line('-')
-//   .products([
-//     { name: 'Paramex', quantity: 3, price: 4000, total: 12000 },
-//     { name: 'Head&Shoulders', quantity: 1, price: 15000, total: 15000 },
-//     { name: 'Hanasui Anti Acne', quantity: 1, price: 25000, total: 25000 },
-//   ])
-//   .line('-')
-//   .transactioDetail([
-//     { name: 'Total', value: 18500 },
-//     { name: 'Bayar', value: 20000 },
-//     { name: 'Kembali', value: 1500 },
-//     { name: 'Sisa Hutang', value: 5000 },
-//   ])
-//   .line('-')
-//   .align('center')
-//   .text('Terimakasih sudah berbelanja || di toko kami ^_^')
-//   .cut()
-//   .cashdraw()
-//   .close();
-
 const SalesOrders = () => {
   const getPrinter = async () => {
     try {
       // const printer = new BTPrinter();
-      const printer = await new BTPrinter().connect();
+      const printer = await BTPrinter.create();
 
       printer
         .size('large')
@@ -81,19 +48,8 @@ const SalesOrders = () => {
         .text('Terimakasih sudah berbelanja || di toko kami ^_^')
         .cut()
         .cashdraw();
+
       await printer.print();
-
-      // console.log(printer);
-
-      // const server = await device.gatt.connect();
-      // const service = await server.getPrimaryService(
-      //   '000018f0-0000-1000-8000-00805f9b34fb'
-      // );
-      // const printerCharacteristic = await service.getCharacteristic(
-      //   '00002af1-0000-1000-8000-00805f9b34fb'
-      // );
-
-      // await printerCharacteristic.writeValue(data);
     } catch (error: any) {
       mySwal.fire(error.message);
     }

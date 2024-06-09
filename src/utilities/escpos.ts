@@ -7,33 +7,43 @@ export class BTPrinter {
   private device: BluetoothDevice | null = null;
   private server: BluetoothRemoteGATTServer | undefined = undefined;
   private characteristic: BluetoothRemoteGATTCharacteristic | undefined = undefined;
-  private reciept: string[] = [];
-  private data: Uint8Array[] = [];
+  private dataBuffer: Uint8Array[] = [];
 
-  async connect() {
+  static async create(): Promise<BTPrinter> {
+    const instance = new BTPrinter();
+    await instance.initialize();
+    return instance;
+  }
+
+  private async initialize() {
     try {
-      // Meminta perangkat Bluetooth dengan filter layanan tertentu
-      this.device = await navigator.bluetooth.requestDevice({
-        filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }],
-      });
+      const [printer] = await navigator.bluetooth.getDevices();
 
-      // Menghubungkan ke perangkat
-      this.server = await this.device.gatt?.connect();
+      if (printer) this.device = printer;
+      else
+        this.device = await navigator.bluetooth.requestDevice({
+          filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }],
+        });
 
-      // Mendapatkan layanan utama dari perangkat
-      const service = await this.server?.getPrimaryService(
+      if (!this.device.gatt) {
+        throw new Error('GATT not supported on device');
+      }
+
+      this.server = await this.device.gatt.connect();
+      const service = await this.server.getPrimaryService(
         '000018f0-0000-1000-8000-00805f9b34fb'
       );
-
-      // Mendapatkan karakteristik dari layanan
-      this.characteristic = await service?.getCharacteristic(
+      this.characteristic = await service.getCharacteristic(
         '00002af1-0000-1000-8000-00805f9b34fb'
       );
-
-      return this;
     } catch (error) {
       throw error;
     }
+  }
+
+  encoder(text: string): Uint8Array {
+    const textEncoder = new TextEncoder();
+    return textEncoder.encode(text);
   }
 
   size(ukuran: 'normal' | 'large') {
@@ -42,7 +52,8 @@ export class BTPrinter {
     const fontNormal = GS + '!' + '\x00';
     const fontLarge = GS + '!' + '\x11';
 
-    this.reciept.push(ukuran === 'normal' ? fontNormal : fontLarge);
+    this.dataBuffer.push(this.encoder(ukuran === 'normal' ? fontNormal : fontLarge));
+
     return this;
   }
 
@@ -61,7 +72,8 @@ export class BTPrinter {
         alignCode = '\x00';
         break;
     }
-    this.reciept.push(`\x1Ba${alignCode}`);
+
+    this.dataBuffer.push(this.encoder(`\x1Ba${alignCode}`));
 
     return this;
   }
@@ -72,7 +84,7 @@ export class BTPrinter {
     const boldOn = ESC + 'E' + '\x01'; // Bold on
     const boldOff = ESC + 'E' + '\x00'; // Bold off
 
-    this.reciept.push(status === undefined ? boldOn : boldOff);
+    this.dataBuffer.push(this.encoder(status === undefined ? boldOn : boldOff));
 
     return this;
   }
@@ -80,19 +92,19 @@ export class BTPrinter {
   text(str: string = '') {
     const arrStr = str.split('||');
 
-    arrStr.forEach((str) => this.reciept.push(`${str.trim()}\n`));
+    arrStr.forEach((str) => this.dataBuffer.push(this.encoder(`${str.trim()}\n`)));
 
     return this;
   }
 
   newLine() {
-    this.reciept.push('\n');
+    this.dataBuffer.push(this.encoder('\n'));
 
     return this;
   }
 
   line(prefix: string, qty?: number) {
-    this.reciept.push(`${prefix.repeat(qty || 32)}\n`);
+    this.dataBuffer.push(this.encoder(`${prefix.repeat(qty || 32)}\n`));
 
     return this;
   }
@@ -102,16 +114,18 @@ export class BTPrinter {
     width: number = 32
   ) {
     products.forEach((product) => {
-      this.reciept.push(`${product.name}\n`);
+      this.dataBuffer.push(this.encoder(`${product.name}\n`));
       const qty = toRupiah(product.quantity);
       const price = toRupiah(product.price);
       const total = toRupiah(product.total);
 
-      this.reciept.push(
-        `${qty} x ${price}${total.padStart(
-          width - (qty.length + price.length + 3),
-          ' '
-        )}\n`
+      this.dataBuffer.push(
+        this.encoder(
+          `${qty} x ${price}${total.padStart(
+            width - (qty.length + price.length + 3),
+            ' '
+          )}\n`
+        )
       );
     });
 
@@ -123,7 +137,9 @@ export class BTPrinter {
       const name = detail.name.padEnd(12, ' ');
       const value = toRupiah(detail.value);
 
-      this.reciept.push(`${name} :${value.padStart(width - (name.length + 2), ' ')}\n`);
+      this.dataBuffer.push(
+        this.encoder(`${name} :${value.padStart(width - (name.length + 2), ' ')}\n`)
+      );
     });
 
     return this;
@@ -145,27 +161,19 @@ export class BTPrinter {
 
     const command = `${ESC}${p}${m}${t1}${t2}`;
 
-    this.reciept.push(command);
+    this.dataBuffer.push(this.encoder(command));
 
     return this;
   }
 
   async print() {
-    const textEncoder = new TextEncoder();
-    // const CHUNK_SIZE = 512;
-
     if (!this.characteristic) {
       throw new Error('Printer tidak ditemukan');
     }
 
-    // buat array data buffer
-    for (let i = 0; i < this.reciept.length; i++) {
-      this.data.push(textEncoder.encode(this.reciept[i]));
-    }
-
-    for (let i = 0; i < this.data.length; i++) {
+    for (let i = 0; i < this.dataBuffer.length; i++) {
       try {
-        await this.characteristic.writeValue(this.data[i]);
+        await this.characteristic.writeValue(this.dataBuffer[i]);
       } catch (error) {
         throw error;
       }
