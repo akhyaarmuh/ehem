@@ -85,7 +85,7 @@ const SalesOrders = () => {
         .cut()
         .cashdraw();
 
-      await printer.close();
+      await printer.print();
 
       // const server = await device.gatt.connect();
       // const service = await server.getPrimaryService(

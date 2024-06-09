@@ -7,8 +7,8 @@ export class BTPrinter {
   private device: BluetoothDevice | null = null;
   private server: BluetoothRemoteGATTServer | undefined = undefined;
   private characteristic: BluetoothRemoteGATTCharacteristic | undefined = undefined;
-  private reciept: string = '';
-  private data: Uint8Array | null = null;
+  private reciept: string[] = [];
+  private data: Uint8Array[] = [];
 
   async connect() {
     try {
@@ -42,13 +42,13 @@ export class BTPrinter {
     const fontNormal = GS + '!' + '\x00';
     const fontLarge = GS + '!' + '\x11';
 
-    this.reciept += ukuran === 'normal' ? fontNormal : fontLarge;
+    this.reciept.push(ukuran === 'normal' ? fontNormal : fontLarge);
     return this;
   }
 
   align(align: 'left' | 'center' | 'right') {
-    const ESC = '\x1B';
     let alignCode;
+
     switch (align) {
       case 'center':
         alignCode = '\x01';
@@ -61,7 +61,7 @@ export class BTPrinter {
         alignCode = '\x00';
         break;
     }
-    this.reciept += `${ESC}a${alignCode}`;
+    this.reciept.push(`\x1Ba${alignCode}`);
 
     return this;
   }
@@ -72,7 +72,7 @@ export class BTPrinter {
     const boldOn = ESC + 'E' + '\x01'; // Bold on
     const boldOff = ESC + 'E' + '\x00'; // Bold off
 
-    this.reciept += status === undefined ? boldOn : boldOff;
+    this.reciept.push(status === undefined ? boldOn : boldOff);
 
     return this;
   }
@@ -80,19 +80,19 @@ export class BTPrinter {
   text(str: string = '') {
     const arrStr = str.split('||');
 
-    arrStr.forEach((str) => (this.reciept += `${str.trim()}\n`));
+    arrStr.forEach((str) => this.reciept.push(`${str.trim()}\n`));
 
     return this;
   }
 
   newLine() {
-    this.reciept += '\n';
+    this.reciept.push('\n');
 
     return this;
   }
 
   line(prefix: string, qty?: number) {
-    this.reciept += `${prefix.repeat(qty || 32)}\n`;
+    this.reciept.push(`${prefix.repeat(qty || 32)}\n`);
 
     return this;
   }
@@ -102,16 +102,19 @@ export class BTPrinter {
     width: number = 32
   ) {
     products.forEach((product) => {
-      this.reciept += `${product.name}\n`;
+      this.reciept.push(`${product.name}\n`);
       const qty = toRupiah(product.quantity);
       const price = toRupiah(product.price);
       const total = toRupiah(product.total);
 
-      this.reciept += `${qty} x ${price}${total.padStart(
-        width - (qty.length + price.length + 3),
-        ' '
-      )}\n`;
+      this.reciept.push(
+        `${qty} x ${price}${total.padStart(
+          width - (qty.length + price.length + 3),
+          ' '
+        )}\n`
+      );
     });
+
     return this;
   }
 
@@ -120,7 +123,7 @@ export class BTPrinter {
       const name = detail.name.padEnd(12, ' ');
       const value = toRupiah(detail.value);
 
-      this.reciept += `${name} :${value.padStart(width - (name.length + 2), ' ')}\n`;
+      this.reciept.push(`${name} :${value.padStart(width - (name.length + 2), ' ')}\n`);
     });
 
     return this;
@@ -142,35 +145,39 @@ export class BTPrinter {
 
     const command = `${ESC}${p}${m}${t1}${t2}`;
 
-    this.reciept += command;
+    this.reciept.push(command);
 
-    // Mengirim buffer ke printer
     return this;
   }
 
-  async close() {
+  async print() {
+    const textEncoder = new TextEncoder();
+    const CHUNK_SIZE = 512;
+
     if (!this.characteristic) {
       throw new Error('Printer tidak ditemukan');
     }
 
-    const textEncoder = new TextEncoder();
-    this.data = textEncoder.encode(this.reciept);
+    // buat array data buffer
+    for (let i = 0; i < this.reciept.length; i++) {
+      this.data.push(textEncoder.encode(this.reciept[i]));
+    }
 
-    // Fungsi untuk membagi data menjadi batch kecil
-    const CHUNK_SIZE = 512;
-    for (let i = 0; i < this.data.length; i += CHUNK_SIZE) {
-      const chunk = this.data.slice(i, i + CHUNK_SIZE);
-      try {
-        await this.characteristic.writeValue(chunk);
-      } catch (error) {
-        throw error;
+    for (let i = 0; i < this.data.length; i++) {
+      for (let i = 0; i < this.data[i].length; i += CHUNK_SIZE) {
+        const chunk = this.data[i].slice(i, i + CHUNK_SIZE);
+        try {
+          await this.characteristic.writeValue(chunk);
+        } catch (error) {
+          throw error;
+        }
       }
     }
 
-    if (this.device && this.device.gatt) {
-      this.device.gatt.disconnect();
-      console.log('Bluetooth device disconnected');
-    }
+    // if (this.device && this.device.gatt) {
+    //   this.device.gatt.disconnect();
+    //   console.log('Bluetooth device disconnected');
+    // }
   }
 }
 
