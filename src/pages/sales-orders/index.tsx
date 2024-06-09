@@ -19,6 +19,7 @@ const SalesOrders = () => {
     try {
       // const printer = new BTPrinter();
       const printer = await BTPrinter.create(device);
+      if (!device) setDevice(printer.device);
 
       printer
         .size('large')

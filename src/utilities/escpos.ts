@@ -4,7 +4,7 @@ type nameDetails = 'Total' | 'Bayar' | 'Kembali' | 'Sisa Hutang';
 
 // }
 export class BTPrinter {
-  private device: BluetoothDevice | null = null;
+  public device: BluetoothDevice | null = null;
   private server: BluetoothRemoteGATTServer | undefined = undefined;
   private characteristic: BluetoothRemoteGATTCharacteristic | undefined = undefined;
   private dataBuffer: Uint8Array[] = [];
