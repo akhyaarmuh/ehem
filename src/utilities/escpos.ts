@@ -152,7 +152,7 @@ export class BTPrinter {
 
   async print() {
     const textEncoder = new TextEncoder();
-    const CHUNK_SIZE = 512;
+    // const CHUNK_SIZE = 512;
 
     if (!this.characteristic) {
       throw new Error('Printer tidak ditemukan');
@@ -164,13 +164,10 @@ export class BTPrinter {
     }
 
     for (let i = 0; i < this.data.length; i++) {
-      for (let j = 0; j < this.data[i].length; j += CHUNK_SIZE) {
-        const chunk = this.data[i].slice(i, i + CHUNK_SIZE);
-        try {
-          await this.characteristic.writeValue(chunk);
-        } catch (error) {
-          throw error;
-        }
+      try {
+        await this.characteristic.writeValue(this.data[i]);
+      } catch (error) {
+        throw error;
       }
     }
 

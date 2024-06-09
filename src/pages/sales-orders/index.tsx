@@ -47,6 +47,7 @@ import { mySwal } from '../../utilities';
 const SalesOrders = () => {
   const getPrinter = async () => {
     try {
+      // const printer = new BTPrinter();
       const printer = await new BTPrinter().connect();
 
       printer
@@ -80,8 +81,9 @@ const SalesOrders = () => {
         .text('Terimakasih sudah berbelanja || di toko kami ^_^')
         .cut()
         .cashdraw();
-
       await printer.print();
+
+      // console.log(printer);
 
       // const server = await device.gatt.connect();
       // const service = await server.getPrimaryService(
