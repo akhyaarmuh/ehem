@@ -164,7 +164,7 @@ export class BTPrinter {
     }
 
     for (let i = 0; i < this.data.length; i++) {
-      for (let i = 0; i < this.data[i].length; i += CHUNK_SIZE) {
+      for (let j = 0; j < this.data[i].length; j += CHUNK_SIZE) {
         const chunk = this.data[i].slice(i, i + CHUNK_SIZE);
         try {
           await this.characteristic.writeValue(chunk);
