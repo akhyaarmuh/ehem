@@ -166,6 +166,11 @@ export class BTPrinter {
         throw error;
       }
     }
+
+    if (this.device && this.device.gatt) {
+      this.device.gatt.disconnect();
+      console.log('Bluetooth device disconnected');
+    }
   }
 }
 

@@ -46,11 +46,11 @@ import { mySwal } from '../../utilities';
 
 const SalesOrders = () => {
   const getPrinter = async () => {
-    const _navigator: any = navigator;
+    // const _navigator: any = navigator;
     try {
-      const device = await _navigator.bluetooth.requestDevice({
-        filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }],
-      });
+      // const device = await _navigator.bluetooth.requestDevice({
+      //   filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }],
+      // });
       const printer = await new BTPrinter().connect();
 
       printer
